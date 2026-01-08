@@ -1,0 +1,143 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum CompanyLegalForm {
+  PRIVATE_LIMITED_COMPANY
+  PUBLIC_LIMITED_COMPANY
+  PARTNERSHIP
+  CORPORATION
+  OTHER
+}
+
+// ============================================================================
+// CORE MODELS
+// ============================================================================
+
+model Country {
+  id          Int      @id @default(autoincrement())
+  code        String   @unique // ISO 3166-1 alpha-2 (e.g., "AE", "SA")
+  nameEn      String
+  nameAr      String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  companies   Company[]
+  reports   Report[]
+
+  @@index([code])
+  @@index([isActive])
+
+}
+
+model Company {
+  id                Int            @id @default(autoincrement())
+  nameEn            String
+  nameAr            String?
+  registrationNumber String         @unique
+  legalForm         CompanyLegalForm @default(PRIVATE_LIMITED_COMPANY)
+  industry          String
+  foundedDate       String?
+  size              String? // e.g., "1,500-2,000"
+  address           String
+  city              String
+  countryCode       String
+  country           Country @relation(fields: [countryCode], references: [code])
+  phone             String
+  email             String
+  website           String?
+  description       String? // Free public data
+  services          String[] // Free public data
+  reports           Report[]
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  @@index([nameEn, nameAr])
+  @@index([countryCode])
+}
+
+
+model User {
+  id                    Int                   @id @default(autoincrement())
+  email                 String                @unique
+  name                  String
+  password              String?               // Optional until password is set
+  role                  UserRole              @default(USER)
+  isVerified            Boolean               @default(false)
+  passwordSetupToken    String?               @unique
+  passwordSetupTokenExpiresAt DateTime?
+  passwordResetToken    String?               @unique
+  passwordResetTokenExpiresAt DateTime?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  refreshTokens         RefreshToken[]
+
+  @@index([email])
+  @@index([isVerified])
+  @@index([role])
+  @@index([passwordSetupToken])
+  @@index([passwordResetToken])
+}
+
+model RefreshToken {
+  id          Int      @id @default(autoincrement())
+  token       String   @unique
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  revoked     Boolean  @default(false)
+  revokedAt   DateTime?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([token])
+  @@index([userId])
+  @@index([revoked])
+  @@index([expiresAt])
+}
+// ============================================================================
+// PREMIUM REPORTS / SERVICES
+// ============================================================================
+
+model Report {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  isActive    Boolean  @default(true)
+  turnaround  String
+  price       Int
+  countryCode String
+  country     Country @relation(fields: [countryCode], references: [code], onDelete: Cascade)
+  companies   Company[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive])
+}
+
+
+
+
+
+
+
