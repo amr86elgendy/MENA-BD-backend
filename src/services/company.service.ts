@@ -68,8 +68,7 @@ export async function searchCompanies(filters: CompanySearchFilters) {
   const companies = await prisma.company.findMany({
     where,
     include: {
-      reports: {},
-      // country: true,
+      country: true,
     },
     take: filters.limit || 50,
     skip: filters.offset || 0,
@@ -131,7 +130,7 @@ export async function getCompanyPublicData(
 
 /**
  * Get available reports for a company
- * Returns reports available for the company's country
+ * Returns only reports assigned to the company
  */
 export async function getCompanyReports(
   companyId: number,
@@ -139,21 +138,23 @@ export async function getCompanyReports(
 ) {
   const company = await prisma.company.findUnique({
     where: { id: companyId },
-    include: { country: true },
+    include: {
+      country: true,
+      reports: {
+        where: {
+          isActive: true,
+        },
+        orderBy: { createdAt: "desc" },
+      },
+    },
   });
 
   if (!company) {
     throw new Error("Company not found");
   }
 
-  // Get all available reports for this country
-  const reports = await prisma.report.findMany({
-    where: {
-      countryCode: company.countryCode,
-      isActive: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  // Get only reports assigned to this company (filtered by isActive)
+  const reports = company.reports;
 
   // For unverified users, return metadata only (no pricing details)
   if (!isUserVerified) {

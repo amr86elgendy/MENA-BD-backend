@@ -21,7 +21,7 @@ export async function searchCompaniesHandler(req: Request, res: Response) {
 
     if (country) {
       if (typeof country === "string" && country.length === 2) {
-        filters.countryCode = country.toUpperCase();
+        filters.countryCode = country
       }
     }
 
@@ -84,7 +84,7 @@ export async function getCompanyReportsHandler(req: Request, res: Response) {
     const companyId = parseInt(req.params.id);
 
     if (isNaN(companyId)) {
-      return res.status(400).json({ error: "Invalid company ID" });
+      return res.status(400).json({ msg: "Invalid company ID" });
     }
 
     // Get user verification status if authenticated

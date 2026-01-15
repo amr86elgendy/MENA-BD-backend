@@ -67,6 +67,7 @@ model Company {
   description       String? // Free public data
   services          String[] // Free public data
   reports           Report[]
+  cartItems         CartItem[]
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
 
@@ -90,6 +91,7 @@ model User {
   updatedAt             DateTime              @updatedAt
 
   refreshTokens         RefreshToken[]
+  cart                  Cart?
 
   @@index([email])
   @@index([isVerified])
@@ -124,15 +126,51 @@ model Report {
   name        String
   description String
   isActive    Boolean  @default(true)
-  turnaround  String
+  turnaround  String // 2-3 days, 3-5 days
   price       Int
   countryCode String
   country     Country @relation(fields: [countryCode], references: [code], onDelete: Cascade)
   companies   Company[]
+  cartItems   CartItem[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([isActive])
+}
+
+// ============================================================================
+// CART MODELS
+// ============================================================================
+
+model Cart {
+  id        Int        @id @default(autoincrement())
+  userId    Int        @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([userId])
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  cartId    Int
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  reportId  Int
+  report    Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  companyId Int
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  quantity  Int      @default(1)
+  price     Int      // Store price at time of adding (snapshot)
+  language  String?  // Optional language preference
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([cartId])
+  @@index([reportId])
+  @@index([companyId])
+  @@unique([cartId, reportId, companyId]) // Prevent duplicate items
 }
 
 

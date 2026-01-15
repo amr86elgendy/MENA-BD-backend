@@ -1,7 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
-import { authenticate, requireAdmin } from "../../middleware/auth.js";
-import { parseExcelAndCreateCompanies } from "../../services/excel.service.js";
+import { authenticate, requireAdmin } from "../../middleware/auth";
+import { parseExcelAndCreateCompanies } from "../../services/excel.service";
 
 const router = Router();
 

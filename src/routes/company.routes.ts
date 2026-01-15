@@ -10,7 +10,7 @@ const router = Router();
 
 // Public routes
 router.get("/search", searchCompaniesHandler);
-router.get("/:id", getCompanyHandler);
+router.get("/:id", optionalAuth, getCompanyHandler);
 
 // Reports - optional auth to see full pricing
 router.get(

@@ -4,10 +4,13 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import { connectDb, disconnectDb } from "./config/db";
 import companyRoutes from "./routes/company.routes";
-import userRoutes from "./routes/user";
+import countryRoutes from "./routes/country.routes";
+import cartRoutes from "./routes/cart.routes";
+import userRoutes from "./routes/admin/user.routes";
 import authRoutes from "./routes/auth";
 import adminCompanyRoutes from "./routes/admin/company.routes";
 import adminCountryRoutes from "./routes/admin/country.routes";
+import adminReportRoutes from "./routes/admin/report.routes";
 import { uploadExcelRoute } from "./routes/admin/upload.routes";
 import { securityHeaders } from "./middleware/security-headers";
 
@@ -50,9 +53,12 @@ app.use(cookieParser());
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/companies", companyRoutes);
-app.use("/api/users", userRoutes);
+app.use("/api/countries", countryRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/admin/users", userRoutes);
 app.use("/api/admin/companies", adminCompanyRoutes);
 app.use("/api/admin/countries", adminCountryRoutes);
+app.use("/api/admin/reports", adminReportRoutes);
 app.use("/api/admin", uploadExcelRoute);
 
 // Health check endpoint

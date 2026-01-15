@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { prisma } from "../../config/db.js";
-import { authenticate, requireAdmin } from "../../middleware/auth.js";
+import { prisma } from "../../config/db";
+import { authenticate, requireAdmin } from "../../middleware/auth";
 
 const router = Router();
 
@@ -53,6 +53,7 @@ router.get("/", async (req, res) => {
         where,
         include: {
           country: true,
+          reports: true,
         },
         orderBy: { createdAt: "desc" },
         skip,
@@ -119,6 +120,7 @@ router.post("/", async (req, res) => {
       website,
       description,
       services,
+      reportIds,
     } = req.body;
 
     // Validation
@@ -164,9 +166,16 @@ router.post("/", async (req, res) => {
         website: website || null,
         description: description || null,
         services: services || [],
+        reports:
+          reportIds && reportIds.length > 0
+            ? {
+                connect: reportIds.map((id: number) => ({ id })),
+              }
+            : undefined,
       },
       include: {
         country: true,
+        reports: true,
       },
     });
 
@@ -201,6 +210,7 @@ router.put("/:id", async (req, res) => {
       website,
       description,
       services,
+      reportIds,
     } = req.body;
 
     const updateData: any = {};
@@ -230,11 +240,32 @@ router.put("/:id", async (req, res) => {
     if (description !== undefined) updateData.description = description;
     if (services !== undefined) updateData.services = services;
 
+    // Handle reports relationship
+    if (reportIds !== undefined) {
+      // First, disconnect all existing reports
+      await prisma.company.update({
+        where: { id },
+        data: {
+          reports: {
+            set: [],
+          },
+        },
+      });
+
+      // Then connect the new reports if any
+      if (reportIds.length > 0) {
+        updateData.reports = {
+          connect: reportIds.map((id: number) => ({ id })),
+        };
+      }
+    }
+
     const company = await prisma.company.update({
       where: { id },
       data: updateData,
       include: {
         country: true,
+        reports: true,
       },
     });
 

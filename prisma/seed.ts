@@ -464,28 +464,6 @@ async function main() {
   console.log(`✅ Created ${users.length} users`);
 
   // ============================================================================
-  // REFRESH TOKENS (10 tokens)
-  // ============================================================================
-  console.log("🔑 Creating 10 refresh tokens...");
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 7); // 7 days from now
-
-  const refreshTokens = await Promise.all(
-    users.slice(0, 10).map((user, index) =>
-      prisma.refreshToken.create({
-        data: {
-          token: `refresh_token_${user.id}_${Date.now()}_${index}`,
-          userId: user.id,
-          expiresAt,
-          revoked: index % 3 === 0, // Every 3rd token is revoked
-        },
-      })
-    )
-  );
-
-  console.log(`✅ Created ${refreshTokens.length} refresh tokens`);
-
-  // ============================================================================
   // REPORTS (10 reports)
   // ============================================================================
   console.log("📊 Creating 10 reports...");

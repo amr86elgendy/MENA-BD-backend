@@ -1,30 +1,30 @@
 import { Router, Request, Response } from "express";
-import { prisma } from "../config/db.js";
-import { hashPassword, comparePassword } from "../utils/password.js";
+import { prisma } from "../config/db";
+import { hashPassword, comparePassword } from "../utils/password";
 import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
   type TokenPayload,
   type RefreshTokenPayload,
-} from "../utils/jwt.js";
-import { authenticate } from "../middleware/auth.js";
+} from "../utils/jwt";
+import { authenticate } from "../middleware/auth";
 import {
   validatePassword,
   validateEmail,
   sanitizeEmail,
   getClientIp,
   getUserAgent,
-} from "../utils/security.js";
-import { sendPasswordResetEmail } from "../services/email.service.js";
-import { generatePasswordSetupToken } from "../utils/jwt.js";
+} from "../utils/security";
+import { sendPasswordResetEmail } from "../services/email.service";
+import { generatePasswordSetupToken } from "../utils/jwt";
 import {
   loginRateLimit,
   refreshRateLimit,
   registerRateLimit,
   forgotPasswordRateLimit,
   resetPasswordRateLimit,
-} from "../middleware/rate-limit.js";
+} from "../middleware/rate-limit";
 
 const router = Router();
 
